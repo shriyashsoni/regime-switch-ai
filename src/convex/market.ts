@@ -41,8 +41,19 @@ export const getStats = query({
     const closedTrades = trades.filter((t) => t.status === "CLOSED" && t.pnl !== undefined);
     
     const totalPnl = closedTrades.reduce((acc, t) => acc + (t.pnl || 0), 0);
+    const winningTrades = closedTrades.filter((t) => (t.pnl || 0) > 0);
     const winRate = closedTrades.length > 0 
-      ? (closedTrades.filter((t) => (t.pnl || 0) > 0).length / closedTrades.length) * 100 
+      ? (winningTrades.length / closedTrades.length) * 100 
+      : 0;
+    
+    // Calculate additional metrics
+    const avgWin = winningTrades.length > 0
+      ? winningTrades.reduce((acc, t) => acc + (t.pnl || 0), 0) / winningTrades.length
+      : 0;
+    
+    const losingTrades = closedTrades.filter((t) => (t.pnl || 0) < 0);
+    const avgLoss = losingTrades.length > 0
+      ? losingTrades.reduce((acc, t) => acc + (t.pnl || 0), 0) / losingTrades.length
       : 0;
     
     return {
@@ -50,6 +61,9 @@ export const getStats = query({
       winRate,
       totalTrades: trades.length,
       activeTrades: trades.filter((t) => t.status === "OPEN").length,
+      avgWin,
+      avgLoss,
+      profitFactor: avgLoss !== 0 ? Math.abs(avgWin / avgLoss) : 0,
     };
   },
 });

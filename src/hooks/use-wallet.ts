@@ -16,18 +16,32 @@ export function useWallet() {
     walletType: null,
   });
 
-  // Check if wallet is already connected on mount
+  // Check if wallet is already connected on mount and verify it's still valid
   useEffect(() => {
     const savedAddress = localStorage.getItem("walletAddress");
     const savedType = localStorage.getItem("walletType") as "metamask" | "phantom" | null;
     
     if (savedAddress && savedType) {
-      setWallet({
-        address: savedAddress,
-        isConnected: true,
-        isConnecting: false,
-        walletType: savedType,
-      });
+      // Verify the wallet is still accessible
+      if (savedType === "metamask" && typeof window.ethereum !== "undefined") {
+        setWallet({
+          address: savedAddress,
+          isConnected: true,
+          isConnecting: false,
+          walletType: savedType,
+        });
+      } else if (savedType === "phantom" && typeof window.solana !== "undefined" && window.solana.isPhantom) {
+        setWallet({
+          address: savedAddress,
+          isConnected: true,
+          isConnecting: false,
+          walletType: savedType,
+        });
+      } else {
+        // Clear invalid stored connection
+        localStorage.removeItem("walletAddress");
+        localStorage.removeItem("walletType");
+      }
     }
   }, []);
 

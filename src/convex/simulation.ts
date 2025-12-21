@@ -123,9 +123,12 @@ export const tick = mutation({
 export const seed = mutation({
     args: {},
     handler: async (ctx) => {
-        // Clear existing? No, just add initial if empty
-        const existing = await ctx.db.query("market_data").first();
-        if (!existing) {
+        // Check if data already exists
+        const existingData = await ctx.db.query("market_data").first();
+        const existingRegime = await ctx.db.query("regimes").first();
+        
+        // Only seed if completely empty
+        if (!existingData) {
             await ctx.db.insert("market_data", {
                 symbol: "BTC-USD",
                 timestamp: Date.now(),
@@ -133,12 +136,17 @@ export const seed = mutation({
                 volume: 100,
                 change: 0
             });
+        }
+        
+        if (!existingRegime) {
             await ctx.db.insert("regimes", {
                 timestamp: Date.now(),
                 regime: "SIDEWAYS",
                 confidence: 0.9,
-                description: "Initial state"
+                description: "Initial market state - System initialized"
             });
         }
+        
+        return { success: true, message: "Database seeded successfully" };
     }
 })

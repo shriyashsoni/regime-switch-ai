@@ -20,8 +20,11 @@ export default function Landing() {
     if (isConnected) {
       navigate("/dashboard");
     } else {
-      // Scroll to connect section or show wallet options
-      document.getElementById("connect-section")?.scrollIntoView({ behavior: "smooth" });
+      // Scroll to connect section smoothly
+      const connectSection = document.getElementById("connect-section");
+      if (connectSection) {
+        connectSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     }
   };
 

@@ -36,8 +36,9 @@ export default function Dashboard() {
   }, [isConnected, navigate]);
 
   useEffect(() => {
-    seed();
-  }, []);
+    // Seed the database on first load
+    seed().catch(console.error);
+  }, [seed]);
 
   // Auto-refresh every 5 seconds
   useEffect(() => {
