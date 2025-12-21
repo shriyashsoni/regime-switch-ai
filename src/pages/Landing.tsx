@@ -297,35 +297,138 @@ export default function Landing() {
         </div>
       </main>
 
-      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              onClick={() => navigate("/whitepaper")}
-              className="flex items-center gap-2 hover:text-primary transition-colors"
-            >
-              <FileText className="h-4 w-4" />
-              Whitepaper
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              onClick={() => navigate("/privacy")}
-              className="flex items-center gap-2 hover:text-primary transition-colors"
-            >
-              <Lock className="h-4 w-4" />
-              Privacy Policy
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              onClick={() => navigate("/about")}
-              className="flex items-center gap-2 hover:text-primary transition-colors"
-            >
-              <Users className="h-4 w-4" />
-              About Us
-            </motion.button>
+      <footer className="border-t bg-card/50 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            {/* Brand Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 font-bold text-xl">
+                <Brain className="h-6 w-6 text-primary" />
+                <span>RegimeSwitcher.AI</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                AI-driven algorithmic trading adapted to market regimes. Maximize alpha, minimize drawdown.
+              </p>
+            </div>
+
+            {/* Product Links */}
+            <div>
+              <h3 className="font-semibold mb-4">Product</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <motion.button
+                    whileHover={{ x: 5 }}
+                    onClick={() => navigate("/dashboard")}
+                    className="hover:text-primary transition-colors"
+                  >
+                    Dashboard
+                  </motion.button>
+                </li>
+                <li>
+                  <motion.button
+                    whileHover={{ x: 5 }}
+                    onClick={() => navigate("/whitepaper")}
+                    className="hover:text-primary transition-colors"
+                  >
+                    Whitepaper
+                  </motion.button>
+                </li>
+                <li>
+                  <motion.span className="hover:text-primary transition-colors cursor-pointer">
+                    API Documentation
+                  </motion.span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Company Links */}
+            <div>
+              <h3 className="font-semibold mb-4">Company</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <motion.button
+                    whileHover={{ x: 5 }}
+                    onClick={() => navigate("/about")}
+                    className="hover:text-primary transition-colors"
+                  >
+                    About Us
+                  </motion.button>
+                </li>
+                <li>
+                  <motion.span className="hover:text-primary transition-colors cursor-pointer">
+                    Blog
+                  </motion.span>
+                </li>
+                <li>
+                  <motion.span className="hover:text-primary transition-colors cursor-pointer">
+                    Careers
+                  </motion.span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Legal Links */}
+            <div>
+              <h3 className="font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <motion.button
+                    whileHover={{ x: 5 }}
+                    onClick={() => navigate("/privacy")}
+                    className="hover:text-primary transition-colors"
+                  >
+                    Privacy Policy
+                  </motion.button>
+                </li>
+                <li>
+                  <motion.span className="hover:text-primary transition-colors cursor-pointer">
+                    Terms of Service
+                  </motion.span>
+                </li>
+                <li>
+                  <motion.span className="hover:text-primary transition-colors cursor-pointer">
+                    Cookie Policy
+                  </motion.span>
+                </li>
+              </ul>
+            </div>
           </div>
-          <p>© 2024 RegimeSwitcher.AI. All rights reserved.</p>
+
+          {/* Bottom Bar */}
+          <div className="border-t pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-muted-foreground">
+              © 2024 RegimeSwitcher.AI. All rights reserved.
+            </p>
+            <div className="flex gap-4">
+              <motion.a
+                whileHover={{ scale: 1.1, y: -2 }}
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+              >
+                <span className="text-sm">𝕏</span>
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.1, y: -2 }}
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+              >
+                <span className="text-sm">⚡</span>
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.1, y: -2 }}
+                href="https://discord.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+              >
+                <span className="text-sm">💬</span>
+              </motion.a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

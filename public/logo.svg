@@ -1,4 +1,31 @@
 <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M43.3425 71.9746C40.83 69.3049 22.3495 41.8363 14 28C42.2387 28 74.0844 31.2927 90.072 54.5697C94.2246 60.6157 97.0525 66.9165 99.8804 73.6386C102.708 66.9165 105.536 60.6157 109.689 54.5697C125.676 31.2927 157.522 28 185.761 28L99.8804 171.134L74.1163 129.228C94.1551 110.335 108.468 114.596 115.625 118.89C118.488 111.733 120.125 87.5292 90.5767 86.685C65.5283 85.9693 47.3406 76.2228 43.3425 71.9746Z" fill="#A37FBC"/>
-<ellipse cx="99.255" cy="103.68" rx="3.57633" ry="2.9995" fill="#A37FBC"/>
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="url(#gradient)" />
+  
+  <!-- Brain/Neural Network Icon -->
+  <path d="M100 40C77.9 40 60 57.9 60 80C60 88.4 62.8 96.2 67.5 102.5C62.8 108.8 60 116.6 60 125C60 147.1 77.9 165 100 165C122.1 165 140 147.1 140 125C140 116.6 137.2 108.8 132.5 102.5C137.2 96.2 140 88.4 140 80C140 57.9 122.1 40 100 40Z" fill="#10B981" stroke="#059669" stroke-width="3"/>
+  
+  <!-- Neural Nodes -->
+  <circle cx="85" cy="75" r="6" fill="#ECFDF5" />
+  <circle cx="115" cy="75" r="6" fill="#ECFDF5" />
+  <circle cx="100" cy="95" r="6" fill="#ECFDF5" />
+  <circle cx="85" cy="115" r="6" fill="#ECFDF5" />
+  <circle cx="115" cy="115" r="6" fill="#ECFDF5" />
+  
+  <!-- Connecting Lines -->
+  <line x1="85" y1="75" x2="100" y2="95" stroke="#059669" stroke-width="2" />
+  <line x1="115" y1="75" x2="100" y2="95" stroke="#059669" stroke-width="2" />
+  <line x1="100" y1="95" x2="85" y2="115" stroke="#059669" stroke-width="2" />
+  <line x1="100" y1="95" x2="115" y2="115" stroke="#059669" stroke-width="2" />
+  
+  <!-- Market Chart Line -->
+  <path d="M 50 140 L 70 130 L 90 145 L 110 120 L 130 135 L 150 125" stroke="#10B981" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Gradient Definition -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
 </svg>

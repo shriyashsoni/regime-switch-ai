@@ -152,8 +152,21 @@ export default function PrivacyPolicy() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        <p>© 2024 RegimeSwitcher.AI. All rights reserved.</p>
+      <footer className="border-t bg-card/50 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-8 text-center">
+          <div className="flex justify-center gap-6 mb-4 text-sm">
+            <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">
+              Home
+            </button>
+            <button onClick={() => navigate("/whitepaper")} className="hover:text-primary transition-colors">
+              Whitepaper
+            </button>
+            <button onClick={() => navigate("/about")} className="hover:text-primary transition-colors">
+              About
+            </button>
+          </div>
+          <p className="text-sm text-muted-foreground">© 2024 RegimeSwitcher.AI. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   );
