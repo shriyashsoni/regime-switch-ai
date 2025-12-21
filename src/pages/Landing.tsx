@@ -3,10 +3,18 @@ import { motion } from "framer-motion";
 import { Brain, Shield, Zap, Wallet } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useWallet } from "@/hooks/use-wallet";
+import { useEffect } from "react";
 
 export default function Landing() {
   const navigate = useNavigate();
   const { isConnected, address, connectMetaMask, connectPhantom, disconnect } = useWallet();
+
+  // Auto-navigate to dashboard when wallet connects
+  useEffect(() => {
+    if (isConnected) {
+      navigate("/dashboard");
+    }
+  }, [isConnected, navigate]);
 
   const handleGetStarted = () => {
     if (isConnected) {
