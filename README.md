@@ -147,4 +147,6 @@
 
 ## 🏗 Architecture
 
+### System Overview
 
+RegimeSwitcher.AI follows a modern full-stack architecture with real-time capabilities, combining AI-driven backend logic with a responsive React frontend.
