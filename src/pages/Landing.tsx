@@ -1,10 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { ArrowRight, BarChart2, Brain, Shield, Zap } from "lucide-react";
+import { Brain, Shield, Zap, Wallet } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useWallet } from "@/hooks/use-wallet";
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { isConnected, address, connectMetaMask, connectPhantom, disconnect } = useWallet();
+
+  const handleGetStarted = () => {
+    if (isConnected) {
+      navigate("/dashboard");
+    } else {
+      // Scroll to connect section or show wallet options
+      document.getElementById("connect-section")?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -14,9 +25,20 @@ export default function Landing() {
           <Brain className="h-6 w-6 text-primary" />
           <span>RegimeSwitcher.AI</span>
         </div>
-        <div className="flex gap-4">
-          <Button variant="ghost" onClick={() => navigate("/auth")}>Sign In</Button>
-          <Button onClick={() => navigate("/auth")}>Get Started</Button>
+        <div className="flex gap-4 items-center">
+          {isConnected ? (
+            <>
+              <div className="text-sm text-muted-foreground hidden md:block">
+                {address?.slice(0, 6)}...{address?.slice(-4)}
+              </div>
+              <Button variant="outline" onClick={disconnect}>
+                Disconnect
+              </Button>
+              <Button onClick={() => navigate("/dashboard")}>Dashboard</Button>
+            </>
+          ) : (
+            <Button onClick={handleGetStarted}>Connect Wallet</Button>
+          )}
         </div>
       </nav>
 
@@ -39,13 +61,52 @@ export default function Landing() {
           </p>
           <div className="flex gap-4 justify-center pt-4">
             <Button size="lg" className="gap-2" onClick={() => navigate("/dashboard")}>
-              Launch Dashboard <ArrowRight className="h-4 w-4" />
+              Launch Dashboard
             </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate("/auth")}>
-              Create Account
+            <Button size="lg" variant="outline" onClick={handleGetStarted}>
+              {isConnected ? "View Dashboard" : "Connect Wallet"}
             </Button>
           </div>
         </motion.div>
+
+        {/* Wallet Connect Section */}
+        {!isConnected && (
+          <motion.div
+            id="connect-section"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-16 p-8 rounded-xl border bg-card text-card-foreground shadow-sm max-w-md w-full"
+          >
+            <div className="flex justify-center mb-4">
+              <Wallet className="h-12 w-12 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">Connect Your Wallet</h3>
+            <p className="text-muted-foreground mb-6">
+              Choose your preferred wallet to get started
+            </p>
+            <div className="space-y-3">
+              <Button
+                onClick={connectMetaMask}
+                className="w-full gap-2"
+                variant="outline"
+                size="lg"
+              >
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" className="h-5 w-5" />
+                Connect MetaMask
+              </Button>
+              <Button
+                onClick={connectPhantom}
+                className="w-full gap-2"
+                variant="outline"
+                size="lg"
+              >
+                <img src="https://phantom.app/img/phantom-logo.svg" alt="Phantom" className="h-5 w-5" />
+                Connect Phantom
+              </Button>
+            </div>
+          </motion.div>
+        )}
 
         {/* Features */}
         <div className="grid md:grid-cols-3 gap-8 mt-24 w-full">

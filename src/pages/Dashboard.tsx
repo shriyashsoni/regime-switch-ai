@@ -3,13 +3,17 @@ import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { Activity, ArrowDown, ArrowUp, BarChart3, BrainCircuit, DollarSign, TrendingUp, Zap } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Activity, BarChart3, BrainCircuit, DollarSign, TrendingUp, Zap, Wallet, LogOut } from "lucide-react";
+import { useEffect } from "react";
 import { format } from "date-fns";
+import { useWallet } from "@/hooks/use-wallet";
+import { useNavigate } from "react-router";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const { isConnected, address, walletType, disconnect } = useWallet();
+  
   const marketData = useQuery(api.market.getLatestData, { symbol: "BTC-USD" });
   const currentRegime = useQuery(api.market.getCurrentRegime);
   const recentSignals = useQuery(api.market.getRecentSignals);
@@ -20,7 +24,12 @@ export default function Dashboard() {
   const seed = useMutation(api.simulation.seed);
 
   useEffect(() => {
-    // Ensure we have initial data
+    if (!isConnected) {
+      navigate("/");
+    }
+  }, [isConnected, navigate]);
+
+  useEffect(() => {
     seed();
   }, []);
 
@@ -33,6 +42,10 @@ export default function Dashboard() {
     }
   };
 
+  if (!isConnected) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background p-6 space-y-6">
       {/* Header */}
@@ -44,7 +57,20 @@ export default function Dashboard() {
           </h1>
           <p className="text-muted-foreground">Algorithmic Trading System • BTC-USD</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-md border bg-card">
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-mono">
+              {address?.slice(0, 6)}...{address?.slice(-4)}
+            </span>
+            <Badge variant="outline" className="text-xs">
+              {walletType}
+            </Badge>
+          </div>
+          <Button variant="outline" size="sm" onClick={disconnect}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Disconnect
+          </Button>
           <Button variant="outline" onClick={() => tick()}>
             <Zap className="mr-2 h-4 w-4" />
             Simulate Tick
