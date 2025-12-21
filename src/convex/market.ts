@@ -53,3 +53,43 @@ export const getStats = query({
     };
   },
 });
+
+export const getRegimeHistory = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("regimes").order("desc").take(20);
+  },
+});
+
+export const getPortfolioValue = query({
+  args: {},
+  handler: async (ctx) => {
+    const trades = await ctx.db.query("trades").order("desc").take(100);
+    const closedTrades = trades.filter((t) => t.status === "CLOSED" && t.pnl !== undefined);
+    const totalPnl = closedTrades.reduce((acc, t) => acc + (t.pnl || 0), 0);
+    
+    const initialBalance = 10000; // Starting balance
+    return initialBalance + totalPnl;
+  },
+});
+
+export const getStrategyPerformance = query({
+  args: {},
+  handler: async (ctx) => {
+    const signals = await ctx.db.query("signals").order("desc").take(100);
+    
+    const strategies = ["Trend Following", "Mean Reversion", "Capital Preservation"];
+    const performance = strategies.map(strategy => {
+      const strategySignals = signals.filter(s => s.strategy === strategy);
+      return {
+        strategy,
+        count: strategySignals.length,
+        avgConfidence: strategySignals.length > 0 
+          ? strategySignals.reduce((acc, s) => acc + s.confidence, 0) / strategySignals.length 
+          : 0,
+      };
+    });
+    
+    return performance;
+  },
+});

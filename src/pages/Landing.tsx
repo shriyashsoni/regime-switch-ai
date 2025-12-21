@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Brain, Shield, Zap, Wallet } from "lucide-react";
+import { Brain, Shield, Zap, Wallet, TrendingUp, Activity, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useWallet } from "@/hooks/use-wallet";
 import { useEffect } from "react";
@@ -51,7 +51,7 @@ export default function Landing() {
       </nav>
 
       {/* Hero */}
-      <main className="flex-1 container mx-auto px-4 py-20 flex flex-col items-center text-center">
+      <main className="flex-1 container mx-auto px-4 py-12 md:py-20 flex flex-col items-center text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -61,13 +61,13 @@ export default function Landing() {
           <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
             v1.0 Public Beta
           </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight">
             Algorithmic Trading Adapted to <span className="text-primary">Market Regimes</span>
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-lg md:text-xl text-muted-foreground">
             Our AI detects whether the market is Bull, Bear, or Sideways and automatically switches strategies to maximize alpha and minimize drawdown.
           </p>
-          <div className="flex gap-4 justify-center pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button size="lg" className="gap-2" onClick={() => navigate("/dashboard")}>
               Launch Dashboard
             </Button>
@@ -84,7 +84,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="mt-16 p-8 rounded-xl border bg-card text-card-foreground shadow-sm max-w-md w-full"
+            className="mt-12 md:mt-16 p-6 md:p-8 rounded-xl border bg-card text-card-foreground shadow-sm max-w-md w-full"
           >
             <div className="flex justify-center mb-4">
               <Wallet className="h-12 w-12 text-primary" />
@@ -117,7 +117,7 @@ export default function Landing() {
         )}
 
         {/* Features */}
-        <div className="grid md:grid-cols-3 gap-8 mt-24 w-full">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-16 md:mt-24 w-full">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -128,10 +128,11 @@ export default function Landing() {
               <Brain className="h-6 w-6 text-primary" />
             </div>
             <h3 className="text-lg font-bold mb-2">Regime Detection</h3>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               HMM and LSTM models analyze price action to classify market states in real-time.
             </p>
           </motion.div>
+          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -142,10 +143,11 @@ export default function Landing() {
               <Zap className="h-6 w-6 text-primary" />
             </div>
             <h3 className="text-lg font-bold mb-2">Dynamic Switching</h3>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Automatically rotates between Trend Following, Mean Reversion, and Capital Preservation.
             </p>
           </motion.div>
+          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -156,8 +158,53 @@ export default function Landing() {
               <Shield className="h-6 w-6 text-primary" />
             </div>
             <h3 className="text-lg font-bold mb-2">Risk Management</h3>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Built-in volatility scaling and stop-loss mechanisms to protect your portfolio.
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="p-6 rounded-xl border bg-card text-card-foreground shadow-sm"
+          >
+            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 mx-auto">
+              <TrendingUp className="h-6 w-6 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold mb-2">Real-Time Analytics</h3>
+            <p className="text-muted-foreground text-sm">
+              Live performance metrics, PnL tracking, and win rate analysis at your fingertips.
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="p-6 rounded-xl border bg-card text-card-foreground shadow-sm"
+          >
+            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 mx-auto">
+              <Activity className="h-6 w-6 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold mb-2">Auto-Refresh</h3>
+            <p className="text-muted-foreground text-sm">
+              Continuous market simulation with automatic data updates every 5 seconds.
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="p-6 rounded-xl border bg-card text-card-foreground shadow-sm"
+          >
+            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 mx-auto">
+              <BarChart3 className="h-6 w-6 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold mb-2">Strategy Comparison</h3>
+            <p className="text-muted-foreground text-sm">
+              Compare performance across different strategies and optimize your approach.
             </p>
           </motion.div>
         </div>
