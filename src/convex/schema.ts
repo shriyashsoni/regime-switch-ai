@@ -32,12 +32,43 @@ const schema = defineSchema(
       role: v.optional(roleValidator), // role of the user. do not remove
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
-    // add other tables here
+    // Market Data
+    market_data: defineTable({
+      symbol: v.string(),
+      timestamp: v.number(),
+      price: v.number(),
+      volume: v.number(),
+      change: v.number(),
+    }).index("by_symbol_time", ["symbol", "timestamp"]),
 
-    // tableName: defineTable({
-    //   ...
-    //   // table fields
-    // }).index("by_field", ["field"])
+    // Market Regimes
+    regimes: defineTable({
+      timestamp: v.number(),
+      regime: v.string(), // "BULL", "BEAR", "SIDEWAYS", "VOLATILE"
+      confidence: v.number(),
+      description: v.string(),
+    }).index("by_time", ["timestamp"]),
+
+    // Trading Signals
+    signals: defineTable({
+      timestamp: v.number(),
+      symbol: v.string(),
+      type: v.string(), // "BUY", "SELL", "HOLD"
+      strategy: v.string(),
+      confidence: v.number(),
+      status: v.string(), // "PENDING", "EXECUTED"
+    }).index("by_time", ["timestamp"]),
+
+    // Executed Trades
+    trades: defineTable({
+      timestamp: v.number(),
+      symbol: v.string(),
+      side: v.string(), // "BUY", "SELL"
+      price: v.number(),
+      amount: v.number(),
+      pnl: v.optional(v.number()),
+      status: v.string(), // "OPEN", "CLOSED"
+    }).index("by_time", ["timestamp"]),
   },
   {
     schemaValidation: false,
