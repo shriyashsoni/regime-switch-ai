@@ -46,6 +46,10 @@ export function WeexSettings() {
           </DialogTitle>
           <DialogDescription>
             Configure your WEEX API credentials for live trading. Your credentials are stored locally and encrypted.
+            <br />
+            <span className="text-xs text-yellow-500 mt-2 block">
+              ⚠️ Requirements: KYC verified, IP whitelisted, API permissions enabled
+            </span>
           </DialogDescription>
         </DialogHeader>
         
@@ -109,12 +113,13 @@ export function WeexSettings() {
             </div>
             
             <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/50 text-xs">
-              <p className="font-medium mb-1 text-yellow-500">⚠️ Troubleshooting:</p>
+              <p className="font-medium mb-1 text-yellow-500">⚠️ Common Issues:</p>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                <li>Verify API credentials are correct</li>
-                <li>Ensure API key has trading permissions enabled</li>
-                <li>Check that your IP is whitelisted (if required)</li>
-                <li>Confirm passphrase matches the one set during API key creation</li>
+                <li>Ensure KYC verification is completed</li>
+                <li>Whitelist your IP address in WEEX settings</li>
+                <li>Enable trading permissions for API key</li>
+                <li>Verify passphrase matches exactly (case-sensitive)</li>
+                <li>Check API key hasn't expired</li>
               </ul>
             </div>
             

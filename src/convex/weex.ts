@@ -3,7 +3,7 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 import crypto from "crypto";
 
-// WEEX API Configuration - Updated to correct base URL
+// WEEX API Configuration - Updated to correct base URL from documentation
 const WEEX_BASE_URL = "https://api.weex.com";
 
 interface WeexConfig {
@@ -12,15 +12,16 @@ interface WeexConfig {
   passphrase: string;
 }
 
-// Generate HMAC signature for WEEX API
+// Generate HMAC signature for WEEX API according to official docs
 function generateSignature(
   timestamp: string,
   method: string,
-  path: string,
+  requestPath: string,
   body: string,
   secretKey: string
 ): string {
-  const message = timestamp + method + path + body;
+  // Format: timestamp + method + requestPath + body
+  const message = timestamp + method + requestPath + body;
   return crypto.createHmac("sha256", secretKey).update(message).digest("base64");
 }
 
@@ -31,7 +32,7 @@ async function weexRequest(
   path: string,
   body: Record<string, any> = {}
 ) {
-  const timestamp = new Date().toISOString();
+  const timestamp = Date.now().toString();
   const bodyString = Object.keys(body).length > 0 ? JSON.stringify(body) : "";
   
   const signature = generateSignature(
@@ -60,7 +61,17 @@ async function weexRequest(
     options.body = bodyString;
   }
 
-  console.log("WEEX Request:", { url, method, headers: { ...headers, "ACCESS-SIGN": "***", "ACCESS-KEY": config.apiKey.slice(0, 10) + "..." } });
+  console.log("WEEX Request:", { 
+    url, 
+    method, 
+    timestamp,
+    headers: { 
+      ...headers, 
+      "ACCESS-SIGN": "***", 
+      "ACCESS-KEY": config.apiKey.slice(0, 10) + "...",
+      "ACCESS-PASSPHRASE": "***"
+    } 
+  });
 
   try {
     const response = await fetch(url, options);
@@ -68,8 +79,8 @@ async function weexRequest(
     
     console.log("WEEX Response:", { status: response.status, data });
     
-    if (!response.ok) {
-      throw new Error(`WEEX API Error (${response.status}): ${JSON.stringify(data)}`);
+    if (!response.ok || (data.code && data.code !== "00000")) {
+      throw new Error(`WEEX API Error: ${data.msg || data.message || JSON.stringify(data)}`);
     }
     
     return data;
@@ -78,6 +89,39 @@ async function weexRequest(
     throw error;
   }
 }
+
+// Test connection - using account balance endpoint
+export const testConnection = action({
+  args: {
+    apiKey: v.string(),
+    secretKey: v.string(),
+    passphrase: v.string(),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const config: WeexConfig = {
+        apiKey: args.apiKey,
+        secretKey: args.secretKey,
+        passphrase: args.passphrase,
+      };
+      
+      // Test with balance endpoint as per documentation
+      const result = await weexRequest(config, "GET", "/api/v1/account/balance");
+      return { 
+        success: true, 
+        message: "Connection successful! API credentials verified.", 
+        data: result 
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("WEEX Connection Test Failed:", errorMessage);
+      return { 
+        success: false, 
+        message: `Connection failed: ${errorMessage}. Please verify: 1) API credentials are correct, 2) IP is whitelisted, 3) API key has required permissions, 4) KYC is completed.` 
+      };
+    }
+  },
+});
 
 // Get account balance
 export const getBalance = action({
@@ -94,6 +138,26 @@ export const getBalance = action({
     };
     
     return await weexRequest(config, "GET", "/api/v1/account/balance");
+  },
+});
+
+// Get asset price (ticker)
+export const getPrice = action({
+  args: {
+    apiKey: v.string(),
+    secretKey: v.string(),
+    passphrase: v.string(),
+    symbol: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const config: WeexConfig = {
+      apiKey: args.apiKey,
+      secretKey: args.secretKey,
+      passphrase: args.passphrase,
+    };
+    
+    // Using query parameter format from documentation
+    return await weexRequest(config, "GET", `/api/v1/market/ticker?symbol=${args.symbol}`);
   },
 });
 
@@ -117,25 +181,6 @@ export const setLeverage = action({
       symbol: args.symbol,
       leverage: args.leverage,
     });
-  },
-});
-
-// Get asset price
-export const getPrice = action({
-  args: {
-    apiKey: v.string(),
-    secretKey: v.string(),
-    passphrase: v.string(),
-    symbol: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const config: WeexConfig = {
-      apiKey: args.apiKey,
-      secretKey: args.secretKey,
-      passphrase: args.passphrase,
-    };
-    
-    return await weexRequest(config, "GET", `/api/v1/market/ticker?symbol=${args.symbol}`);
   },
 });
 
@@ -242,38 +287,5 @@ export const getTradeDetails = action({
     };
     
     return await weexRequest(config, "GET", `/api/v1/order/trades?orderId=${args.orderId}`);
-  },
-});
-
-// Test connection with better error handling
-export const testConnection = action({
-  args: {
-    apiKey: v.string(),
-    secretKey: v.string(),
-    passphrase: v.string(),
-  },
-  handler: async (ctx, args) => {
-    try {
-      const config: WeexConfig = {
-        apiKey: args.apiKey,
-        secretKey: args.secretKey,
-        passphrase: args.passphrase,
-      };
-      
-      // Try to get account info or balance
-      const result = await weexRequest(config, "GET", "/api/v1/account");
-      return { 
-        success: true, 
-        message: "Connection successful", 
-        data: result 
-      };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error("WEEX Connection Test Failed:", errorMessage);
-      return { 
-        success: false, 
-        message: `Connection failed: ${errorMessage}. Please verify your API credentials and ensure they have the correct permissions.` 
-      };
-    }
   },
 });
