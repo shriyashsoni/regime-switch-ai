@@ -27,9 +27,12 @@ function generateSignature(
   body: string,
   secretKey: string
 ): string {
-  // Format: timestamp + method + requestPath + body
+  // WEEX Format: timestamp + method + requestPath + body
   const message = timestamp + method + requestPath + body;
-  return crypto.createHmac("sha256", secretKey).update(message).digest("base64");
+  console.log("Signature message:", message);
+  const signature = crypto.createHmac("sha256", secretKey).update(message).digest("base64");
+  console.log("Generated signature:", signature);
+  return signature;
 }
 
 // Make authenticated request to WEEX API
@@ -50,7 +53,7 @@ async function weexRequest(
     config.secretKey
   );
 
-  const headers = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "ACCESS-KEY": config.apiKey,
     "ACCESS-SIGN": signature,
@@ -68,13 +71,15 @@ async function weexRequest(
     options.body = bodyString;
   }
 
-  console.log("WEEX Request:", { 
+  console.log("WEEX Request Details:", { 
     url, 
     method, 
     timestamp,
+    path,
+    bodyLength: bodyString.length,
     headers: { 
       ...headers, 
-      "ACCESS-SIGN": "***", 
+      "ACCESS-SIGN": signature.slice(0, 20) + "...", 
       "ACCESS-KEY": config.apiKey.slice(0, 10) + "...",
       "ACCESS-PASSPHRASE": "***"
     } 
@@ -82,17 +87,37 @@ async function weexRequest(
 
   try {
     const response = await fetch(url, options);
-    const data = await response.json();
+    const responseText = await response.text();
     
-    console.log("WEEX Response:", { status: response.status, data });
+    console.log("WEEX Response:", { 
+      status: response.status, 
+      statusText: response.statusText,
+      body: responseText.slice(0, 500)
+    });
     
-    if (!response.ok || (data.code && data.code !== "00000")) {
-      throw new Error(`WEEX API Error: ${data.msg || data.message || JSON.stringify(data)}`);
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      throw new Error(`Invalid JSON response: ${responseText.slice(0, 200)}`);
+    }
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${data.msg || data.message || responseText}`);
+    }
+    
+    if (data.code && data.code !== "00000") {
+      throw new Error(`WEEX API Error [${data.code}]: ${data.msg || data.message || JSON.stringify(data)}`);
     }
     
     return data;
   } catch (error) {
-    console.error("WEEX Request Failed:", error);
+    console.error("WEEX Request Failed:", {
+      error: error instanceof Error ? error.message : String(error),
+      url,
+      method,
+      path
+    });
     throw error;
   }
 }
@@ -112,8 +137,17 @@ export const testConnection = action({
         passphrase: args.passphrase || DEFAULT_WEEX_CONFIG.passphrase,
       };
       
+      console.log("Testing WEEX connection with config:", {
+        apiKey: config.apiKey.slice(0, 10) + "...",
+        hasSecret: !!config.secretKey,
+        hasPassphrase: !!config.passphrase
+      });
+      
       // Test with balance endpoint as per documentation
       const result = await weexRequest(config, "GET", "/api/v1/account/balance");
+      
+      console.log("Connection test successful:", result);
+      
       return { 
         success: true, 
         message: "Connection successful! API credentials verified.", 
@@ -122,9 +156,20 @@ export const testConnection = action({
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error("WEEX Connection Test Failed:", errorMessage);
+      
+      // Provide detailed troubleshooting
+      let troubleshooting = "Please verify:\n";
+      troubleshooting += "1. API credentials are correct (check for typos)\n";
+      troubleshooting += "2. Your IP address is whitelisted in WEEX settings\n";
+      troubleshooting += "3. API key has required permissions (read + trade)\n";
+      troubleshooting += "4. KYC verification is completed\n";
+      troubleshooting += "5. API key hasn't expired\n";
+      troubleshooting += "6. Passphrase matches exactly (case-sensitive)";
+      
       return { 
         success: false, 
-        message: `Connection failed: ${errorMessage}. Please verify: 1) API credentials are correct, 2) IP is whitelisted, 3) API key has required permissions, 4) KYC is completed.` 
+        message: `Connection failed: ${errorMessage}\n\n${troubleshooting}`,
+        error: errorMessage
       };
     }
   },

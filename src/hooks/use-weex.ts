@@ -14,7 +14,7 @@ export function useWeex() {
     const stored = localStorage.getItem("weexCredentials");
     return stored ? JSON.parse(stored) : null;
   });
-  const [isConnected, setIsConnected] = useState(true); // Default to true for demo
+  const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const testConnection = useAction(api.weex.testConnection);
@@ -39,19 +39,25 @@ export function useWeex() {
   const connect = useCallback(async (creds: WeexCredentials) => {
     setIsLoading(true);
     try {
+      console.log("Attempting WEEX connection...");
       const result = await testConnection(creds);
+      
+      console.log("Connection result:", result);
+      
       if (result.success) {
         saveCredentials(creds);
         setIsConnected(true);
         toast.success("WEEX API connected successfully!");
         return true;
       } else {
-        toast.error(`Connection failed: ${result.message}`);
+        toast.error(`Connection failed: ${result.message || result.error}`);
+        console.error("Connection failed:", result);
         return false;
       }
     } catch (error) {
-      toast.error("Failed to connect to WEEX API");
-      console.error(error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      toast.error(`Failed to connect: ${errorMsg}`);
+      console.error("Connection error:", error);
       return false;
     } finally {
       setIsLoading(false);
