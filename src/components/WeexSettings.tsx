@@ -71,7 +71,7 @@ export function WeexSettings() {
               <Input
                 id="apiKey"
                 type="text"
-                placeholder="weex_..."
+                placeholder="Enter your WEEX API Key"
                 value={formData.apiKey}
                 onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
                 required
@@ -106,6 +106,16 @@ export function WeexSettings() {
                 onChange={(e) => setFormData({ ...formData, passphrase: e.target.value })}
                 required
               />
+            </div>
+            
+            <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/50 text-xs">
+              <p className="font-medium mb-1 text-yellow-500">⚠️ Troubleshooting:</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>Verify API credentials are correct</li>
+                <li>Ensure API key has trading permissions enabled</li>
+                <li>Check that your IP is whitelisted (if required)</li>
+                <li>Confirm passphrase matches the one set during API key creation</li>
+              </ul>
             </div>
             
             <div className="p-3 rounded-lg bg-muted text-xs text-muted-foreground">

@@ -3,7 +3,7 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 import crypto from "crypto";
 
-// WEEX API Configuration
+// WEEX API Configuration - Updated to correct base URL
 const WEEX_BASE_URL = "https://api.weex.com";
 
 interface WeexConfig {
@@ -21,7 +21,7 @@ function generateSignature(
   secretKey: string
 ): string {
   const message = timestamp + method + path + body;
-  return crypto.createHmac("sha256", secretKey).update(message).digest("hex");
+  return crypto.createHmac("sha256", secretKey).update(message).digest("base64");
 }
 
 // Make authenticated request to WEEX API
@@ -31,7 +31,7 @@ async function weexRequest(
   path: string,
   body: Record<string, any> = {}
 ) {
-  const timestamp = Date.now().toString();
+  const timestamp = new Date().toISOString();
   const bodyString = Object.keys(body).length > 0 ? JSON.stringify(body) : "";
   
   const signature = generateSignature(
@@ -44,10 +44,10 @@ async function weexRequest(
 
   const headers = {
     "Content-Type": "application/json",
-    "WEEX-API-KEY": config.apiKey,
-    "WEEX-TIMESTAMP": timestamp,
-    "WEEX-SIGN": signature,
-    "WEEX-PASSPHRASE": config.passphrase,
+    "ACCESS-KEY": config.apiKey,
+    "ACCESS-SIGN": signature,
+    "ACCESS-TIMESTAMP": timestamp,
+    "ACCESS-PASSPHRASE": config.passphrase,
   };
 
   const url = `${WEEX_BASE_URL}${path}`;
@@ -60,14 +60,23 @@ async function weexRequest(
     options.body = bodyString;
   }
 
-  const response = await fetch(url, options);
-  const data = await response.json();
-  
-  if (!response.ok) {
-    throw new Error(`WEEX API Error: ${JSON.stringify(data)}`);
+  console.log("WEEX Request:", { url, method, headers: { ...headers, "ACCESS-SIGN": "***", "ACCESS-KEY": config.apiKey.slice(0, 10) + "..." } });
+
+  try {
+    const response = await fetch(url, options);
+    const data = await response.json();
+    
+    console.log("WEEX Response:", { status: response.status, data });
+    
+    if (!response.ok) {
+      throw new Error(`WEEX API Error (${response.status}): ${JSON.stringify(data)}`);
+    }
+    
+    return data;
+  } catch (error) {
+    console.error("WEEX Request Failed:", error);
+    throw error;
   }
-  
-  return data;
 }
 
 // Get account balance
@@ -236,7 +245,7 @@ export const getTradeDetails = action({
   },
 });
 
-// Test connection
+// Test connection with better error handling
 export const testConnection = action({
   args: {
     apiKey: v.string(),
@@ -251,10 +260,20 @@ export const testConnection = action({
         passphrase: args.passphrase,
       };
       
-      const balance = await weexRequest(config, "GET", "/api/v1/account/balance");
-      return { success: true, message: "Connection successful", data: balance };
+      // Try to get account info or balance
+      const result = await weexRequest(config, "GET", "/api/v1/account");
+      return { 
+        success: true, 
+        message: "Connection successful", 
+        data: result 
+      };
     } catch (error) {
-      return { success: false, message: (error as Error).message };
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("WEEX Connection Test Failed:", errorMessage);
+      return { 
+        success: false, 
+        message: `Connection failed: ${errorMessage}. Please verify your API credentials and ensure they have the correct permissions.` 
+      };
     }
   },
 });
