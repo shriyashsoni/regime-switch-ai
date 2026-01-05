@@ -63,8 +63,8 @@ export function useWeex() {
       // Call without credentials to use backend defaults
       return await getBalanceAction({});
     } catch (error) {
-      toast.error("Failed to fetch balance");
-      console.error(error);
+      // Silent fail - don't show toast for automatic background fetches
+      console.error("Balance fetch error:", error);
       return null;
     }
   }, [getBalanceAction]);
@@ -74,8 +74,8 @@ export function useWeex() {
       // Call without credentials to use backend defaults
       return await getPriceAction({ symbol });
     } catch (error) {
-      toast.error("Failed to fetch price");
-      console.error(error);
+      // Silent fail - don't show toast for automatic background fetches
+      console.error("Price fetch error:", error);
       return null;
     }
   }, [getPriceAction]);

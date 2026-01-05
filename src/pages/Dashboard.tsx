@@ -47,29 +47,48 @@ export default function Dashboard() {
 
   // Fetch WEEX balance automatically (no credentials needed)
   useEffect(() => {
+    let isMounted = true;
     const fetchBalance = async () => {
-      const balance = await getWeexBalance();
-      if (balance) {
-        setWeexBalance(balance);
-        setWeexConnected(true);
+      try {
+        const balance = await getWeexBalance();
+        if (balance && isMounted) {
+          setWeexBalance(balance);
+          setWeexConnected(true);
+        }
+      } catch (error) {
+        console.error("Balance fetch error:", error);
+        if (isMounted) {
+          setWeexConnected(false);
+        }
       }
     };
     fetchBalance();
     const interval = setInterval(fetchBalance, 30000); // Every 30 seconds
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [getWeexBalance]);
 
   // Fetch live price from WEEX automatically
   useEffect(() => {
+    let isMounted = true;
     const fetchPrice = async () => {
-      const priceData = await getWeexPrice("cmt_btcusdt");
-      if (priceData?.last) {
-        setLivePrice(parseFloat(priceData.last));
+      try {
+        const priceData = await getWeexPrice("cmt_btcusdt");
+        if (priceData?.last && isMounted) {
+          setLivePrice(parseFloat(priceData.last));
+        }
+      } catch (error) {
+        console.error("Price fetch error:", error);
       }
     };
     fetchPrice();
     const interval = setInterval(fetchPrice, 5000);
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [getWeexPrice]);
 
   // Auto-refresh every 5 seconds
