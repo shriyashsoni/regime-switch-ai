@@ -60,25 +60,31 @@ export function useWeex() {
 
   const getBalance = useCallback(async () => {
     try {
-      // Call without credentials to use backend defaults
+      // Use user credentials if available, otherwise backend will use defaults
+      if (credentials) {
+        return await getBalanceAction(credentials);
+      }
       return await getBalanceAction({});
     } catch (error) {
       // Silent fail - don't show toast for automatic background fetches
       console.error("Balance fetch error:", error);
       return null;
     }
-  }, [getBalanceAction]);
+  }, [getBalanceAction, credentials]);
 
   const getPrice = useCallback(async (symbol: string) => {
     try {
-      // Call without credentials to use backend defaults
+      // Use user credentials if available, otherwise backend will use defaults
+      if (credentials) {
+        return await getPriceAction({ symbol, ...credentials });
+      }
       return await getPriceAction({ symbol });
     } catch (error) {
       // Silent fail - don't show toast for automatic background fetches
       console.error("Price fetch error:", error);
       return null;
     }
-  }, [getPriceAction]);
+  }, [getPriceAction, credentials]);
 
   const placeOrder = useCallback(async (
     symbol: string,

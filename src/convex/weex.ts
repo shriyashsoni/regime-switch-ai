@@ -130,7 +130,7 @@ export const testConnection = action({
   },
 });
 
-// Get account balance (uses default credentials if not provided)
+// Get account balance (requires credentials - uses defaults if not provided)
 export const getBalance = action({
   args: {
     apiKey: v.optional(v.string()),
@@ -138,6 +138,7 @@ export const getBalance = action({
     passphrase: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Prioritize user-provided credentials over defaults
     const config: WeexConfig = {
       apiKey: args.apiKey || DEFAULT_WEEX_CONFIG.apiKey,
       secretKey: args.secretKey || DEFAULT_WEEX_CONFIG.secretKey,
@@ -148,7 +149,7 @@ export const getBalance = action({
   },
 });
 
-// Get asset price (ticker) (uses default credentials if not provided)
+// Get asset price (ticker) (requires credentials - uses defaults if not provided)
 export const getPrice = action({
   args: {
     symbol: v.string(),
@@ -157,6 +158,7 @@ export const getPrice = action({
     passphrase: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Prioritize user-provided credentials over defaults
     const config: WeexConfig = {
       apiKey: args.apiKey || DEFAULT_WEEX_CONFIG.apiKey,
       secretKey: args.secretKey || DEFAULT_WEEX_CONFIG.secretKey,

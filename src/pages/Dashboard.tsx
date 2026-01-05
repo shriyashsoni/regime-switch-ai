@@ -17,7 +17,7 @@ import { useWeex } from "@/hooks/use-weex";
 export default function Dashboard() {
   const navigate = useNavigate();
   const { isConnected, address, walletType, disconnect } = useWallet();
-  const { getBalance: getWeexBalance, getPrice: getWeexPrice } = useWeex();
+  const { getBalance: getWeexBalance, getPrice: getWeexPrice, credentials: weexCredentials } = useWeex();
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [weexBalance, setWeexBalance] = useState<any>(null);
   const [livePrice, setLivePrice] = useState<number | null>(null);
@@ -45,7 +45,7 @@ export default function Dashboard() {
     seed().catch(console.error);
   }, [seed]);
 
-  // Fetch WEEX balance automatically (no credentials needed)
+  // Fetch WEEX balance automatically (uses user credentials if available)
   useEffect(() => {
     let isMounted = true;
     const fetchBalance = async () => {
@@ -68,9 +68,9 @@ export default function Dashboard() {
       isMounted = false;
       clearInterval(interval);
     };
-  }, [getWeexBalance]);
+  }, [getWeexBalance, weexCredentials]);
 
-  // Fetch live price from WEEX automatically
+  // Fetch live price from WEEX automatically (uses user credentials if available)
   useEffect(() => {
     let isMounted = true;
     const fetchPrice = async () => {
@@ -89,7 +89,7 @@ export default function Dashboard() {
       isMounted = false;
       clearInterval(interval);
     };
-  }, [getWeexPrice]);
+  }, [getWeexPrice, weexCredentials]);
 
   // Auto-refresh every 5 seconds
   useEffect(() => {
