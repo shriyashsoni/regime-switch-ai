@@ -17,10 +17,11 @@ import { useWeex } from "@/hooks/use-weex";
 export default function Dashboard() {
   const navigate = useNavigate();
   const { isConnected, address, walletType, disconnect } = useWallet();
-  const { isConnected: weexConnected, getBalance: getWeexBalance, getPrice: getWeexPrice } = useWeex();
+  const { getBalance: getWeexBalance, getPrice: getWeexPrice } = useWeex();
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [weexBalance, setWeexBalance] = useState<any>(null);
   const [livePrice, setLivePrice] = useState<number | null>(null);
+  const [weexConnected, setWeexConnected] = useState(true); // Always connected for demo
   
   const marketData = useQuery(api.market.getLatestData, { symbol: "BTC-USD" });
   const currentRegime = useQuery(api.market.getCurrentRegime);
@@ -44,27 +45,32 @@ export default function Dashboard() {
     seed().catch(console.error);
   }, [seed]);
 
-  // Fetch WEEX balance when connected
+  // Fetch WEEX balance automatically (no credentials needed)
   useEffect(() => {
-    if (weexConnected) {
-      getWeexBalance().then(setWeexBalance);
-    }
-  }, [weexConnected, getWeexBalance]);
+    const fetchBalance = async () => {
+      const balance = await getWeexBalance();
+      if (balance) {
+        setWeexBalance(balance);
+        setWeexConnected(true);
+      }
+    };
+    fetchBalance();
+    const interval = setInterval(fetchBalance, 30000); // Every 30 seconds
+    return () => clearInterval(interval);
+  }, [getWeexBalance]);
 
-  // Fetch live price from WEEX
+  // Fetch live price from WEEX automatically
   useEffect(() => {
-    if (weexConnected) {
-      const fetchPrice = async () => {
-        const priceData = await getWeexPrice("cmt_btcusdt");
-        if (priceData?.last) {
-          setLivePrice(parseFloat(priceData.last));
-        }
-      };
-      fetchPrice();
-      const interval = setInterval(fetchPrice, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [weexConnected, getWeexPrice]);
+    const fetchPrice = async () => {
+      const priceData = await getWeexPrice("cmt_btcusdt");
+      if (priceData?.last) {
+        setLivePrice(parseFloat(priceData.last));
+      }
+    };
+    fetchPrice();
+    const interval = setInterval(fetchPrice, 5000);
+    return () => clearInterval(interval);
+  }, [getWeexPrice]);
 
   // Auto-refresh every 5 seconds
   useEffect(() => {

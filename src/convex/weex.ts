@@ -6,6 +6,13 @@ import crypto from "crypto";
 // WEEX API Configuration - Updated to correct base URL from documentation
 const WEEX_BASE_URL = "https://api.weex.com";
 
+// Hardcoded WEEX credentials for demo/testing
+const DEFAULT_WEEX_CONFIG = {
+  apiKey: "d4a8ca2488mshc4a0c5f5d9c9e37p176479jsn90e4e0e0a0a0",
+  secretKey: "shpat_d4a8ca2488mshc4a0c5f5d9c9e37p176479jsn90e4e0e0a0a0",
+  passphrase: "Shriyash@2005",
+};
+
 interface WeexConfig {
   apiKey: string;
   secretKey: string;
@@ -90,19 +97,19 @@ async function weexRequest(
   }
 }
 
-// Test connection - using account balance endpoint
+// Test connection - using account balance endpoint (uses default credentials if not provided)
 export const testConnection = action({
   args: {
-    apiKey: v.string(),
-    secretKey: v.string(),
-    passphrase: v.string(),
+    apiKey: v.optional(v.string()),
+    secretKey: v.optional(v.string()),
+    passphrase: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     try {
       const config: WeexConfig = {
-        apiKey: args.apiKey,
-        secretKey: args.secretKey,
-        passphrase: args.passphrase,
+        apiKey: args.apiKey || DEFAULT_WEEX_CONFIG.apiKey,
+        secretKey: args.secretKey || DEFAULT_WEEX_CONFIG.secretKey,
+        passphrase: args.passphrase || DEFAULT_WEEX_CONFIG.passphrase,
       };
       
       // Test with balance endpoint as per documentation
@@ -123,37 +130,37 @@ export const testConnection = action({
   },
 });
 
-// Get account balance
+// Get account balance (uses default credentials if not provided)
 export const getBalance = action({
   args: {
-    apiKey: v.string(),
-    secretKey: v.string(),
-    passphrase: v.string(),
+    apiKey: v.optional(v.string()),
+    secretKey: v.optional(v.string()),
+    passphrase: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const config: WeexConfig = {
-      apiKey: args.apiKey,
-      secretKey: args.secretKey,
-      passphrase: args.passphrase,
+      apiKey: args.apiKey || DEFAULT_WEEX_CONFIG.apiKey,
+      secretKey: args.secretKey || DEFAULT_WEEX_CONFIG.secretKey,
+      passphrase: args.passphrase || DEFAULT_WEEX_CONFIG.passphrase,
     };
     
     return await weexRequest(config, "GET", "/api/v1/account/balance");
   },
 });
 
-// Get asset price (ticker)
+// Get asset price (ticker) (uses default credentials if not provided)
 export const getPrice = action({
   args: {
-    apiKey: v.string(),
-    secretKey: v.string(),
-    passphrase: v.string(),
     symbol: v.string(),
+    apiKey: v.optional(v.string()),
+    secretKey: v.optional(v.string()),
+    passphrase: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const config: WeexConfig = {
-      apiKey: args.apiKey,
-      secretKey: args.secretKey,
-      passphrase: args.passphrase,
+      apiKey: args.apiKey || DEFAULT_WEEX_CONFIG.apiKey,
+      secretKey: args.secretKey || DEFAULT_WEEX_CONFIG.secretKey,
+      passphrase: args.passphrase || DEFAULT_WEEX_CONFIG.passphrase,
     };
     
     // Using query parameter format from documentation

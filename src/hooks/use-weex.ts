@@ -14,7 +14,7 @@ export function useWeex() {
     const stored = localStorage.getItem("weexCredentials");
     return stored ? JSON.parse(stored) : null;
   });
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(true); // Default to true for demo
   const [isLoading, setIsLoading] = useState(false);
 
   const testConnection = useAction(api.weex.testConnection);
@@ -59,32 +59,26 @@ export function useWeex() {
   }, [testConnection, saveCredentials]);
 
   const getBalance = useCallback(async () => {
-    if (!credentials) {
-      toast.error("No WEEX credentials configured");
-      return null;
-    }
     try {
-      return await getBalanceAction(credentials);
+      // Call without credentials to use backend defaults
+      return await getBalanceAction({});
     } catch (error) {
       toast.error("Failed to fetch balance");
       console.error(error);
       return null;
     }
-  }, [credentials, getBalanceAction]);
+  }, [getBalanceAction]);
 
   const getPrice = useCallback(async (symbol: string) => {
-    if (!credentials) {
-      toast.error("No WEEX credentials configured");
-      return null;
-    }
     try {
-      return await getPriceAction({ ...credentials, symbol });
+      // Call without credentials to use backend defaults
+      return await getPriceAction({ symbol });
     } catch (error) {
       toast.error("Failed to fetch price");
       console.error(error);
       return null;
     }
-  }, [credentials, getPriceAction]);
+  }, [getPriceAction]);
 
   const placeOrder = useCallback(async (
     symbol: string,
