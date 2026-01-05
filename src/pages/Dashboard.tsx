@@ -11,11 +11,16 @@ import { useWallet } from "@/hooks/use-wallet";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { WeexSettings } from "@/components/WeexSettings";
+import { useWeex } from "@/hooks/use-weex";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { isConnected, address, walletType, disconnect } = useWallet();
+  const { isConnected: weexConnected, getBalance: getWeexBalance, getPrice: getWeexPrice } = useWeex();
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [weexBalance, setWeexBalance] = useState<any>(null);
+  const [livePrice, setLivePrice] = useState<number | null>(null);
   
   const marketData = useQuery(api.market.getLatestData, { symbol: "BTC-USD" });
   const currentRegime = useQuery(api.market.getCurrentRegime);
@@ -36,9 +41,30 @@ export default function Dashboard() {
   }, [isConnected, navigate]);
 
   useEffect(() => {
-    // Seed the database on first load
     seed().catch(console.error);
   }, [seed]);
+
+  // Fetch WEEX balance when connected
+  useEffect(() => {
+    if (weexConnected) {
+      getWeexBalance().then(setWeexBalance);
+    }
+  }, [weexConnected, getWeexBalance]);
+
+  // Fetch live price from WEEX
+  useEffect(() => {
+    if (weexConnected) {
+      const fetchPrice = async () => {
+        const priceData = await getWeexPrice("cmt_btcusdt");
+        if (priceData?.last) {
+          setLivePrice(parseFloat(priceData.last));
+        }
+      };
+      fetchPrice();
+      const interval = setInterval(fetchPrice, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [weexConnected, getWeexPrice]);
 
   // Auto-refresh every 5 seconds
   useEffect(() => {
@@ -101,7 +127,10 @@ export default function Dashboard() {
             <BrainCircuit className="h-6 md:h-8 w-6 md:w-8 text-primary" />
             AI Market Regime Switcher
           </h1>
-          <p className="text-sm md:text-base text-muted-foreground">Algorithmic Trading System • BTC-USD</p>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Algorithmic Trading System • BTC-USD
+            {weexConnected && <span className="text-green-500 ml-2">• WEEX Live</span>}
+          </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
           <div className="flex items-center gap-2 px-3 py-2 rounded-md border bg-card text-xs md:text-sm">
@@ -113,6 +142,7 @@ export default function Dashboard() {
               {walletType}
             </Badge>
           </div>
+          <WeexSettings />
           <Button variant="outline" size="sm" onClick={disconnect}>
             <LogOut className="mr-2 h-4 w-4" />
             <span className="hidden md:inline">Disconnect</span>
@@ -140,15 +170,20 @@ export default function Dashboard() {
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs md:text-sm font-medium">Portfolio Value</CardTitle>
+              <CardTitle className="text-xs md:text-sm font-medium">
+                {weexConnected ? "WEEX Balance" : "Portfolio Value"}
+              </CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-xl md:text-2xl font-bold text-primary">
-                ${portfolioValue?.toFixed(2) || "10000.00"}
+                {weexConnected && weexBalance 
+                  ? `$${parseFloat(weexBalance.total || "0").toFixed(2)}`
+                  : `$${portfolioValue?.toFixed(2) || "10000.00"}`
+                }
               </div>
               <p className="text-xs text-muted-foreground">
-                Initial: $10,000
+                {weexConnected ? "Live WEEX Account" : "Simulated"}
               </p>
             </CardContent>
           </Card>
@@ -194,10 +229,10 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl md:text-2xl font-bold">
-                ${marketData?.[marketData.length - 1]?.price.toFixed(2) || "---"}
+                ${livePrice?.toFixed(2) || marketData?.[marketData.length - 1]?.price.toFixed(2) || "---"}
               </div>
               <p className="text-xs text-muted-foreground">
-                Latest tick
+                {weexConnected ? "Live WEEX" : "Simulated"}
               </p>
             </CardContent>
           </Card>

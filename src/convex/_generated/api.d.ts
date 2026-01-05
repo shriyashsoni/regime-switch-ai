@@ -15,6 +15,7 @@ import type * as http from "../http.js";
 import type * as market from "../market.js";
 import type * as simulation from "../simulation.js";
 import type * as users from "../users.js";
+import type * as weex from "../weex.js";
 
 import type {
   ApiFromModules,
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   market: typeof market;
   simulation: typeof simulation;
   users: typeof users;
+  weex: typeof weex;
 }>;
 
 /**
